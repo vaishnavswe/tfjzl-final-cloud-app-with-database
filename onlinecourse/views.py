@@ -3,7 +3,7 @@ from django.http import HttpResponseRedirect
 # <HINT> Import any new Models here
 from .models import Course, Enrollment, Question, Choice, Submission
 from django.contrib.auth.models import User
-from django.shortcuts import get_object_or_404, render, redirect
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views import generic
 from django.contrib.auth import login, logout, authenticate
@@ -157,6 +157,7 @@ def extract_answers(request):
         # Calculate the total score
 #def show_exam_result(request, course_id, submission_id):
 def show_exam_result(request, course_id, submission_id):
+    context = {}
     course = get_object_or_404(Course, pk=course_id)
     submission = get_object_or_404(Submission, pk=submission_id)
 
@@ -164,21 +165,16 @@ def show_exam_result(request, course_id, submission_id):
     selected_ids = list(selected_choices.values_list('id', flat=True))
 
     total_score = 0
-    total_possible = 0
-
-    # grade each question using Question.is_get_score()
-    for question in course.question_set.all():
-        total_possible += question.grade
+    questions = course.question_set.all()
+    for question in questions:
         if question.is_get_score(selected_ids):
             total_score += question.grade
 
-    context = {
-        'course': course,
-        'submission': submission,
-        'selected_choices': selected_choices,
-        'total_score': total_score,
-        'total_possible': total_possible,
-    }
+    context['course'] = course
+    context['grade'] = total_score
+    context['questions'] = questions
+    context['selected_ids'] = selected_ids
+
     return render(request, 'onlinecourse/exam_result_bootstrap.html', context)
 
 
