@@ -61,7 +61,7 @@
 
     <div class="collapse" id="exam">
         <div class="card card-body">
-            <form>
+            <form action="{% url 'onlinecourse:submit' course.id %}" method="post">
                 {% csrf_token %}
                 {% for question in course.question_set.all %}
                     <div class="card mt-2">
@@ -84,6 +84,7 @@
                         </div>
                     </div>
                 {% endfor %}
+                <button type="submit" class="btn btn-success mt-3">Submit Exam</button>
             </form>
         </div>
     </div>
